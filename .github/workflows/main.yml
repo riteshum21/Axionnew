@@ -23,14 +23,6 @@ jobs:
           tenant-id: 90dd04ee-72ca-46cd-8662-0d614e24d498
           subscription-id: 933094f8-3653-44a5-b6f6-04a0992bcf41
 
-      - name: Check AKS details
-        run: |
-          az aks show \
-            --resource-group RG22 \
-            --name KC100 \
-            --query "{name:name,provisioningState:provisioningState,fqdn:fqdn,privateFqdn:privateFqdn,privateCluster:apiServerAccessProfile.enablePrivateCluster}" \
-            -o yaml
-
       - name: Get AKS credentials
         run: |
           az aks get-credentials \
@@ -38,12 +30,16 @@ jobs:
             --name KC100 \
             --overwrite-existing
 
-      - name: Check AKS connection
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: latest
+
+      - name: Check AKS
         run: |
           kubectl config current-context
-          kubectl cluster-info
           kubectl get nodes
 
-      - name: Deploy manifests
+      - name: Deploy all manifests
         run: |
           kubectl apply -f ./manifest/
