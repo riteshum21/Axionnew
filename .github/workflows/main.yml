@@ -1,7 +1,7 @@
 name: build and deploy
 
 on:
- workflow_dispatch: 
+  workflow_dispatch:
 
 permissions:
   id-token: write
@@ -9,10 +9,9 @@ permissions:
 
 jobs:
   build-and-push:
-   # environment: azure-new
-   runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-   steps:
+    steps:
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -23,15 +22,28 @@ jobs:
           client-id: 8b838f72-cc58-41f2-89c5-99bb78b50ad9
           tenant-id: 90dd04ee-72ca-46cd-8662-0d614e24d498
           subscription-id: 933094f8-3653-44a5-b6f6-04a0992bcf41
-          
+
+      - name: Check AKS details
+        run: |
+          az aks show \
+            --resource-group RG22 \
+            --name KC100 \
+            --query "{name:name,provisioningState:provisioningState,fqdn:fqdn,privateFqdn:privateFqdn,privateCluster:apiServerAccessProfile.enablePrivateCluster}" \
+            -o yaml
+
       - name: Get AKS credentials
         run: |
           az aks get-credentials \
             --resource-group RG22 \
-            --name  KC100 \
+            --name KC100 \
             --overwrite-existing
 
-      - name: Check AKS
+      - name: Check AKS connection
         run: |
-          kubectl apply -f ./manifest
+          kubectl config current-context
+          kubectl cluster-info
+          kubectl get nodes
 
+      - name: Deploy manifests
+        run: |
+          kubectl apply -f ./manifest/
