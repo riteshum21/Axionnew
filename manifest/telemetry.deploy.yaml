@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telemetry-query
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: telemetry-query
+  template:
+    metadata:
+      labels:
+        app: telemetry-query
+    spec:
+      containers:
+      - name: telemetry-query
+        image: riteshcr.azurecr.io/telemetry:v1
+
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://admin:admin123@postgres:5432/axiondb"
