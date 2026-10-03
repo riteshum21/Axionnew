@@ -33,5 +33,5 @@ jobs:
 
       - name: Check AKS
         run: |
-          kubectl apply -f ./manifest
+          kubectl apply -f ./manifest/postgress.deploy
 
